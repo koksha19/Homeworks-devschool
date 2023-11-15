@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model guitarPlayer {
+  player_id Int      @id @default(autoincrement())
+  firstName String
+  lastName  String?
+  band      Band[]
+  guitars   Guitar[]
+
+  @@unique([firstName, lastName])
+}
+
+model Guitar {
+  guitar_id String       @id @default(uuid())
+  brand     String
+  model     String
+  floydRose Boolean
+  owner     guitarPlayer @relation(fields: [ownerId], references: [player_id])
+  ownerId   Int
+}
+
+model Band {
+  band_id         String         @id @default(uuid())
+  memberFirstName String
+  memberLastName  String?
+  guitarist       guitarPlayer[]
+  producer        Producer       @relation(fields: [producerId], references: [producer_id])
+  producerId      String
+  soloConcert     soloConcert?
+}
+
+model Producer {
+  producer_id String  @id @default(uuid())
+  fistName    String
+  lastName    String?
+  band        Band[]
+}
+
+model soloConcert {
+  concert_id String @id @default(uuid())
+  band       Band   @relation(fields: [bandId], references: [band_id])
+  bandId     String @unique
+  date       String
+}
